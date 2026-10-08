@@ -57,12 +57,41 @@ test ('Browser Context Playwright test',async ({page})=>
             break;
         }
     }
-    await page.pause();
+    // await page.pause();
     await expect(page.locator(".user__name [type='text']").first()).toHaveText(email);
     await page.locator(".action__submit").click();
     await expect(page.locator(".hero-primary")).toHaveText(" Thankyou for the order. ");
     const orderId = await page.locator(".em-spacer-1 .ng-star-inserted").textContent();
     console.log(orderId);
+    await page.locator("button[routerlink='/dashboard/myorders']").click();
+    console.log("clicked on my orders");
+    await page.locator("tbody").waitFor();
 
+    const rows = await page.locator("tbody tr");
+    console.log(" table of orders is displayed");
+    for (let i=0; i<await rows.count(); ++i)
+    {   
+        console.log("inside for loop");
+        const rowOrderId = await rows.nth(i).locator("th").textContent();
+        console.log("roworderid is ", rowOrderId);
+        console.log ("prev fetched order id is ",orderId);
+        if (orderId.includes(rowOrderId))
+        {
+            console.log("inside if condition");
+            await rows.nth(i).locator("button").first().click();
+            console.log("clicked on view button");
+            console.log("roworderid is ", rowOrderId);
+            break;
+        }
+        else
+        {
+            console.log("didnt find match");
+        }
+    }
+ 
+    const orderIDDetails = await page.locator(".col-text").textContent();
+    console.log("orderIDDetails is ", orderIDDetails);
+    expect(orderId.includes(orderIDDetails)).toBeTruthy();
+    console.log("expectation is successful");
 });
 
